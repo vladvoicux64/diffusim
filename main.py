@@ -124,7 +124,99 @@ def animate_single_particle():
     plt.show()
 
 
+def simulate_particle_collisions(num_particles=20, max_collisions=10):
+    """
+    Simulates multiple particles with collisions and tracks one particle
+    """
+
+    class Particle:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+            self.dx = np.random.normal(0, 0.5)
+            self.dy = np.random.normal(0, 0.5)
+
+    def elastic_collision(p1, p2):
+        nx = p2.x - p1.x
+        ny = p2.y - p1.y
+        dist = np.sqrt(nx * nx + ny * ny)
+        if dist == 0: return
+        nx /= dist
+        ny /= dist
+
+        v1n = p1.dx * nx + p1.dy * ny
+        v2n = p2.dx * nx + p2.dy * ny
+
+        p1.dx += (v2n - v1n) * nx
+        p1.dy += (v2n - v1n) * ny
+        p2.dx += (v1n - v2n) * nx
+        p2.dy += (v1n - v2n) * ny
+
+    particles = [Particle(np.random.uniform(-10, 10), np.random.uniform(-10, 10))
+                 for _ in range(num_particles)]
+    tracked_particle = particles[0]
+    collision_count = 0
+
+    fig, ax = plt.subplots()
+    tracked_path_x, tracked_path_y = [], []
+    tracked_line, = ax.plot([], [], 'b-', alpha=0.5)
+    particles_scatter = ax.scatter([], [], c='blue')
+    tracked_point = ax.scatter([], [], c='red', s=100)
+
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.grid(True)
+
+    def init():
+        tracked_line.set_data([], [])
+        particles_scatter.set_offsets(np.empty((0, 2)))
+        tracked_point.set_offsets(np.empty((0, 2)))
+        return tracked_line, particles_scatter, tracked_point
+
+    def update(frame):
+        nonlocal collision_count
+        if collision_count >= max_collisions:
+            return tracked_line, particles_scatter, tracked_point
+
+        for p in particles:
+            p.x += p.dx
+            p.y += p.dy
+
+            if abs(p.x) > 10:
+                p.dx *= -1
+                p.x = np.sign(p.x) * 10
+            if abs(p.y) > 10:
+                p.dy *= -1
+                p.y = np.sign(p.y) * 10
+
+        for i in range(len(particles)):
+            for j in range(i + 1, len(particles)):
+                p1, p2 = particles[i], particles[j]
+                dist = np.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
+                if dist < 0.5:
+                    elastic_collision(p1, p2)
+                    if p1 is tracked_particle or p2 is tracked_particle:
+                        collision_count += 1
+
+        tracked_path_x.append(tracked_particle.x)
+        tracked_path_y.append(tracked_particle.y)
+
+        tracked_line.set_data(tracked_path_x, tracked_path_y)
+
+        all_positions = np.array([[p.x, p.y] for p in particles])
+        particles_scatter.set_offsets(all_positions)
+        tracked_point.set_offsets([[tracked_particle.x, tracked_particle.y]])
+
+        return tracked_line, particles_scatter, tracked_point
+
+    anim = FuncAnimation(fig, update, init_func=init, frames=1000,
+                         interval=50, blit=True)
+    plt.show()
+
+
 # Example usage:
 simulate_random_walk(100, 10000, 100)
 # simulate_random_walk(100, 10000, 100)
 animate_single_particle()
+# animate_single_particle()
+simulate_particle_collisions(100, 100)
