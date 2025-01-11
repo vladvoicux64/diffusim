@@ -86,5 +86,45 @@ def simulate_random_walk(num_steps, num_simulations, plot_every):
     return paths
 
 
+def animate_single_particle():
+    """
+    Animates a single particle's random walk in real-time
+    """
+    fig, ax = plt.subplots()
+    x_data, y_data = [], []
+    line, = ax.plot([], [], 'b-')
+    point, = ax.plot([], [], 'ro')
+
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    ax.grid(True)
+
+    def init():
+        line.set_data([], [])
+        point.set_data([], [])
+        return line, point
+
+    def update(frame):
+        dx = np.random.normal(0, 0.5)
+        dy = np.random.normal(0, 0.5)
+
+        if x_data:
+            x_data.append(x_data[-1] + dx)
+            y_data.append(y_data[-1] + dy)
+        else:
+            x_data.append(0)
+            y_data.append(0)
+
+        line.set_data(x_data, y_data)
+        point.set_data([x_data[-1]], [y_data[-1]])
+        return line, point
+
+    anim = FuncAnimation(fig, update, init_func=init, frames=200,
+                         interval=50, blit=True)
+    plt.show()
+
+
 # Example usage:
 simulate_random_walk(100, 10000, 100)
+# simulate_random_walk(100, 10000, 100)
+animate_single_particle()
