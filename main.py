@@ -105,8 +105,8 @@ def animate_single_particle():
         return line, point
 
     def update(frame):
-        dx = np.random.normal(0, 0.5)
-        dy = np.random.normal(0, 0.5)
+        dx = np.random.normal(0, 1)
+        dy = np.random.normal(0, 1)
 
         if x_data:
             x_data.append(x_data[-1] + dx)
@@ -133,8 +133,8 @@ def simulate_particle_collisions(num_particles=20, max_collisions=10):
         def __init__(self, x, y):
             self.x = x
             self.y = y
-            self.dx = np.random.normal(0, 0.5)
-            self.dy = np.random.normal(0, 0.5)
+            self.dx = np.random.normal(0, 1)
+            self.dy = np.random.normal(0, 1)
 
     def elastic_collision(p1, p2):
         nx = p2.x - p1.x
