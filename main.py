@@ -64,8 +64,24 @@ def simulate_random_walk(num_steps, num_simulations, plot_every):
 
     plt.grid(True)
     plt.title(f'Random Walks (n={num_simulations})')
-    plt.show()
 
+    final_positions_x = [paths[i][0][-1] for i in range(num_simulations)]
+    final_positions_y = [paths[i][1][-1] for i in range(num_simulations)]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+
+    ax1.hist(final_positions_x, bins=30, alpha=0.7)
+    ax1.set_title('Final X values')
+    ax1.set_xlabel('X value')
+    ax1.set_ylabel('Frequency')
+
+    ax2.hist(final_positions_y, bins=30, alpha=0.7)
+    ax2.set_title('Final Y values')
+    ax2.set_xlabel('Y value')
+    ax2.set_ylabel('Frequency')
+
+    plt.tight_layout()
+    plt.show()
 
     return paths
 
