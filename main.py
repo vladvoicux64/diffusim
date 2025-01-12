@@ -1,8 +1,9 @@
+from matplotlib.animation import FuncAnimation
+from teoretic import print_theoretical_stats, num_sim_for_conf_level_with_error
+import matplotlib.pyplot as plt
+import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 
 
 def simulate_random_walk(num_steps, num_simulations, plot_every):
@@ -56,11 +57,13 @@ def simulate_random_walk(num_steps, num_simulations, plot_every):
                        for i in range(num_simulations)]
 
     print("\nStatistici pentru Random Walk:")
-    print(f"Poziția medie finală: ({center_x:.2f}, {center_y:.2f})")
-    print(f"Distanța centrului de masă față de origine: {center_distance:.2f}")
-    print(f"Distanța maximă medie: {np.mean(max_distances):.2f}")
-    print(f"Mărimea medie a pasului: {np.mean(avg_step_sizes):.2f}")
-    print(f"Deviația standard a distanțelor finale: {np.std(final_distances):.2f}")
+    print(f"Pozitia medie finala: ({center_x:.2f}, {center_y:.2f})")
+    print(f"Distanta medie a centrului de masa fata de origine: {
+          center_distance:.2f}")
+    print(f"Distanta maxima medie: {np.mean(max_distances):.2f}")
+    print(f"Marimea medie a pasului: {np.mean(avg_step_sizes):.2f}")
+    print(f"Deviatia standard a distantelor finale: {
+          np.std(final_distances):.2f}")
 
     plt.grid(True)
     plt.title(f'Random Walks (n={num_simulations})')
@@ -140,7 +143,8 @@ def simulate_particle_collisions(num_particles=20, max_collisions=10):
         nx = p2.x - p1.x
         ny = p2.y - p1.y
         dist = np.sqrt(nx * nx + ny * ny)
-        if dist == 0: return
+        if dist == 0:
+            return
         nx /= dist
         ny /= dist
 
@@ -235,7 +239,8 @@ def simulate_collision_walk(num_steps, num_particles, num_simulations, plot_ever
         nx = p2.x - p1.x
         ny = p2.y - p1.y
         dist = np.sqrt(nx * nx + ny * ny)
-        if dist == 0: return
+        if dist == 0:
+            return
         nx /= dist
         ny /= dist
         v1n = p1.dx * nx + p1.dy * ny
@@ -271,7 +276,8 @@ def simulate_collision_walk(num_steps, num_particles, num_simulations, plot_ever
 
             positions = np.array([[p.x, p.y] for p in particles])
             for i in range(len(particles)):
-                distances = np.sqrt(np.sum((positions - positions[i]) ** 2, axis=1))
+                distances = np.sqrt(
+                    np.sum((positions - positions[i]) ** 2, axis=1))
                 collisions = np.where((distances < 0.5) & (distances > 0))[0]
                 for j in collisions:
                     elastic_collision(particles[i], particles[j])
@@ -298,7 +304,8 @@ def simulate_collision_walk(num_steps, num_particles, num_simulations, plot_ever
     print("\nStatistici pentru Particula Urmărită:")
     print(f"Poziția medie finală: ({center_x:.2f}, {center_y:.2f})")
     print(f"Distanța centrului de masă față de origine: {center_distance:.2f}")
-    print(f"Numărul mediu de coliziuni per simulare: {np.mean(all_collision_counts):.2f}")
+    print(f"Numărul mediu de coliziuni per simulare: {
+          np.mean(all_collision_counts):.2f}")
 
     plt.figure(1)
     plt.grid(True)
@@ -324,7 +331,13 @@ def simulate_collision_walk(num_steps, num_particles, num_simulations, plot_ever
 
 
 # Example usage:
-# simulate_random_walk(10, 10000, 100)
+NUM_STEPS = 10
+NUM_SIM = 7077
+EPSILON = 0.1
+ALPHA = 0.05
+PLOT_EVERY = 100
+print_theoretical_stats(NUM_SIM, NUM_STEPS, 1, EPSILON, ALPHA)
+simulate_random_walk(NUM_STEPS, NUM_SIM, PLOT_EVERY)
 # animate_single_particle()
 # simulate_particle_collisions(100, 1000)
-simulate_collision_walk(100, 1000, 1000, 10)
+# simulate_collision_walk(100, 1000, 1000, 10)
