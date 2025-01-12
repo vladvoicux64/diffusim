@@ -214,9 +214,117 @@ def simulate_particle_collisions(num_particles=20, max_collisions=10):
     plt.show()
 
 
+def simulate_collision_walk(num_steps, num_particles, num_simulations, plot_every):
+    """
+    Runs simulate_particle_collisions multiple times and collects statistics only for tracked particle
+    """
+    tracked_final_x = []
+    tracked_final_y = []
+    tracked_paths_x = []
+    tracked_paths_y = []
+    all_collision_counts = []
+
+    class Particle:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+            self.dx = np.random.normal(0, 1)
+            self.dy = np.random.normal(0, 1)
+
+    def elastic_collision(p1, p2):
+        nx = p2.x - p1.x
+        ny = p2.y - p1.y
+        dist = np.sqrt(nx * nx + ny * ny)
+        if dist == 0: return
+        nx /= dist
+        ny /= dist
+        v1n = p1.dx * nx + p1.dy * ny
+        v2n = p2.dx * nx + p2.dy * ny
+        p1.dx += (v2n - v1n) * nx
+        p1.dy += (v2n - v1n) * ny
+        p2.dx += (v1n - v2n) * nx
+        p2.dy += (v1n - v2n) * ny
+
+    fig1 = plt.figure(1)
+
+    for sim in range(num_simulations):
+        particles = [Particle(0, 0)]
+        particles.extend([Particle(np.random.uniform(-10, 10), np.random.uniform(-10, 10))
+                          for _ in range(num_particles - 1)])
+
+        tracked_particle = particles[0]
+        collision_count = 0
+        current_path_x = [0]
+        current_path_y = [0]
+
+        for _ in range(num_steps):
+            for p in particles:
+                p.x += p.dx
+                p.y += p.dy
+
+                if abs(p.x) > 10:
+                    p.dx *= -1
+                    p.x = np.sign(p.x) * 10
+                if abs(p.y) > 10:
+                    p.dy *= -1
+                    p.y = np.sign(p.y) * 10
+
+            positions = np.array([[p.x, p.y] for p in particles])
+            for i in range(len(particles)):
+                distances = np.sqrt(np.sum((positions - positions[i]) ** 2, axis=1))
+                collisions = np.where((distances < 0.5) & (distances > 0))[0]
+                for j in collisions:
+                    elastic_collision(particles[i], particles[j])
+                    if i == 0 or j == 0:
+                        collision_count += 1
+
+            current_path_x.append(tracked_particle.x)
+            current_path_y.append(tracked_particle.y)
+
+        tracked_final_x.append(tracked_particle.x)
+        tracked_final_y.append(tracked_particle.y)
+        tracked_paths_x.append(current_path_x)
+        tracked_paths_y.append(current_path_y)
+        all_collision_counts.append(collision_count)
+
+        if sim % plot_every == 0:
+            plt.figure(1)
+            plt.plot(current_path_x, current_path_y, '-', alpha=0.5)
+
+    center_x = np.mean(tracked_final_x)
+    center_y = np.mean(tracked_final_y)
+    center_distance = np.sqrt(center_x ** 2 + center_y ** 2)
+
+    print("\nStatistici pentru Particula Urmărită:")
+    print(f"Poziția medie finală: ({center_x:.2f}, {center_y:.2f})")
+    print(f"Distanța centrului de masă față de origine: {center_distance:.2f}")
+    print(f"Numărul mediu de coliziuni per simulare: {np.mean(all_collision_counts):.2f}")
+
+    plt.figure(1)
+    plt.grid(True)
+    plt.title(f'Collision walks (n={num_simulations})')
+    plt.xlim(-10, 10)
+    plt.ylim(-10, 10)
+
+    fig2, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+    ax1.hist(tracked_final_x, bins=30, alpha=0.7)
+    ax1.set_title('Final X values')
+    ax1.set_xlabel('X value')
+    ax1.set_ylabel('Frequency')
+
+    ax2.hist(tracked_final_y, bins=30, alpha=0.7)
+    ax2.set_title('Final Y values')
+    ax2.set_xlabel('Y value')
+    ax2.set_ylabel('Frequency')
+
+    plt.tight_layout()
+    plt.show()
+
+    return tracked_final_x, tracked_final_y, all_collision_counts, tracked_paths_x, tracked_paths_y
+
+
 # Example usage:
-simulate_random_walk(100, 10000, 100)
-# simulate_random_walk(100, 10000, 100)
-animate_single_particle()
+# simulate_random_walk(10, 10000, 100)
 # animate_single_particle()
-simulate_particle_collisions(100, 100)
+# simulate_particle_collisions(100, 1000)
+simulate_collision_walk(100, 1000, 1000, 10)
