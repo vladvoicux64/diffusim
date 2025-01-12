@@ -130,6 +130,9 @@ def animate_single_particle():
 def simulate_particle_collisions(num_particles=20, max_collisions=10):
     """
     Simulates multiple particles with collisions and tracks one particle
+        Parameters:
+        num_particles: number of particles
+        max_collisions: number of collisions until the simulation ends
     """
 
     class Particle:
@@ -221,6 +224,13 @@ def simulate_particle_collisions(num_particles=20, max_collisions=10):
 def simulate_collision_walk(num_steps, num_particles, num_simulations, plot_every):
     """
     Runs simulate_particle_collisions multiple times and collects statistics only for tracked particle
+        Parameters:
+        num_steps: number of steps for each walk
+        num_particles: number of particles
+        num_simulations: number of walks to simulate
+        plot_every: plot every nth simulation
+    Returns:
+        List of final positions, colision data, paths etc. for each walk
     """
     tracked_final_x = []
     tracked_final_y = []
